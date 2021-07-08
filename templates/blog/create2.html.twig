@@ -1,0 +1,41 @@
+{% extends "base.html.twig" %}
+
+{% block title %}
+	Blog | Création d'un article
+{% endblock %}
+
+{% block body %}
+
+	<h1 class="fst-italic text-center my-5">
+		{% if editMode %}
+			Modification article
+		{% else %}
+			Création article
+		{% endif %}
+	</h1>
+
+	{{ form_start(formArticle) }}
+
+	{{ form_row(formArticle.titre, {'label': "Titre de l'article"})  }}
+
+	{{ form_row(formArticle.contenu) }}
+
+	{{ form_row(formArticle.image) }}
+
+	<button type="submit" class="btn btn-dark">
+    
+    {% if editMode %}
+    
+        Enregistrer les modifications
+
+    {% else %}
+
+        Enregistrer
+
+    {% endif %}
+
+    </button>
+
+	{{ form_end(formArticle) }}
+
+{% endblock %}
