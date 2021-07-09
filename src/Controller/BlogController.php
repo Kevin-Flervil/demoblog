@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Entity\Comment;
 use App\Form\ArticleType;
+use App\Form\CommentType;
 use Doctrine\ORM\EntityManager;
 use App\Repository\ArticleRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -157,7 +159,7 @@ class BlogController extends AbstractController
      */
     // L'id transmit dans l'URL est envoyé directement en argument de la fonction show(), ce qui nous permet d'avoir accès à l'id de l'article a selectionner en BDD au sein de la méthode show()
 
-    public function show(Article $article): Response
+    public function show(Article $article, Request $request): Response
     {
         // dump($id);
 
@@ -170,8 +172,17 @@ class BlogController extends AbstractController
         // $article = $reproArticle->find($id);
         dump($article);
 
+        $comment = new Comment;
+
+        $formComment = $this->createForm(CommentType::class, $comment);
+
+        $formComment->handleRequest($request);
+
+        dump($comment);
+
         return $this->render('blog/show.html.twig', [
-            'articleBDD' => $article // on transmet au template les données de l'article selectionné en BDD afin de les traiter avec le langage Twig dans le template
+            'articleBDD' => $article, // on transmet au template les données de l'article selectionné en BDD afin de les traiter avec le langage Twig dans le template
+            'formComment' => $formComment->createView()
 
         ]);
     }
