@@ -102,13 +102,11 @@ class BlogController extends AbstractController
         // Si la variable $article N'EST PAS (null), si elle ne contient aucun article de la BDD, cela veut dire nous avons envoyé la route '/blog/new', c'est une insertion, on entre dans le IF et on crée une nouvelle instance de l'entité Article, création d'un nouvel article
         // Si la variable $article contient un article de la BDD, cela veut dire que nous avons envoyé la route '/blog/id/edit', c'est une modifiction d'article, on entre pas dans le IF, $article ne sera pas null, il contient un article de la BDD, l'article à modifier
 
-        if(!$article)
-        {
+        if (!$article) {
             $article = new Article;
-
         }
 
-        
+
 
         // En renseignant les setteurs de l'entité, on s'aperçoit que les valeurs sont envoyés directement dans les attributs 'value' du formulaire, cela est dû au fait que l'entité $article est relié au formulaire
 
@@ -131,12 +129,11 @@ class BlogController extends AbstractController
         if ($formArticle->isSubmitted() && $formArticle->isValid()) {
             // Si l'article ne possède pas d'ID, alors on entre dans la condition IF et on execute le setteur de la date, on entre dans le IF que dans le cas de la création d'un nouvel article
 
-            if(!$article->getId())
-            {
+            if (!$article->getId()) {
                 $article->setDate(new \DateTime());
             }
 
-            
+
 
             $manager->persist($article);
             $manager->flush();
@@ -159,7 +156,7 @@ class BlogController extends AbstractController
      */
     // L'id transmit dans l'URL est envoyé directement en argument de la fonction show(), ce qui nous permet d'avoir accès à l'id de l'article a selectionner en BDD au sein de la méthode show()
 
-    public function show(Article $article, Request $request): Response
+    public function show(Article $article, Request $request, EntityManagerInterface $manager): Response
     {
         // dump($id);
 
@@ -178,7 +175,35 @@ class BlogController extends AbstractController
 
         $formComment->handleRequest($request);
 
-        dump($comment);
+        // dump($comment);
+
+        if ($formComment->isSubmitted() && $formComment->isValid()) {
+            $comment->setDate(new \DateTime());
+            
+            // On établit la realtion entre le commentaire et l'article (clé étrangère)
+            // setArticle() : méthode issue de l'entité Comment qui permet de rensigner l'article associé au commentaire
+            // Cette méthode attends en argument l'objet entité Article de la BDD et non la clé étrangère elle même
+
+            $comment->setArticle($article);
+
+            dump($comment);
+
+            $manager->persist($comment);
+            $manager->flush();
+
+            // addFlash() : méthode permettant de déclarer un message de validation stocké en session
+            // arguements :
+            // 1. Identifiant du message (success)
+            // 2. Le message utilisateur
+
+            $this->addFlash('success', "Le commentaire a ete posté avec succès !");
+
+            // Après l'insertion, on redirige l'internaute vers l'affichage de l'article afin de rebooter le formulaire
+
+            return $this->redirectToRoute('blog_show', [
+                'id' => $article->getId()
+            ]);
+        }
 
         return $this->render('blog/show.html.twig', [
             'articleBDD' => $article, // on transmet au template les données de l'article selectionné en BDD afin de les traiter avec le langage Twig dans le template
