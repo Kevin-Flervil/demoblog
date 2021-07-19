@@ -133,7 +133,10 @@ class BlogController extends AbstractController
                 $article->setDate(new \DateTime());
             }
 
+            $tags = $formArticle->get('tags')->getData();
 
+            
+            dd($tags[0]);
 
             $manager->persist($article);
             $manager->flush();
@@ -177,6 +180,7 @@ class BlogController extends AbstractController
 
         // dump($comment);
 
+
         if ($formComment->isSubmitted() && $formComment->isValid()) {
             $comment->setDate(new \DateTime());
             
@@ -190,6 +194,9 @@ class BlogController extends AbstractController
 
             $manager->persist($comment);
             $manager->flush();
+
+            
+
 
             // addFlash() : méthode permettant de déclarer un message de validation stocké en session
             // arguements :
